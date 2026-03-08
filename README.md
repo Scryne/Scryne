@@ -28,7 +28,7 @@ const scryne = {
   department : "Bilgisayar Programcılığı",
   location   : "Manisa, Türkiye 🇹🇷",
   interests  : ["OSINT & Crisis Mapping", "AI Integration", "Full-Stack Web", "Mobile Dev"],
-  currentlyBuilding: ["CineTrack", "Scrutix", "WarTracker"],
+  building   : ["CineTrack", "Scrutix", "WarTracker"],
   motto      : "Every project is a new technology to master.",
 };
 ```
@@ -135,15 +135,11 @@ Canlı haber akışı, Gemini & Ollama ile AI destekli haber özetleme, Socket.i
 
 <div align="center">
 
-<img height="180em" src="https://github-readme-stats.vercel.app/api?username=Scryne&show_icons=true&theme=tokyonight&include_all_commits=true&count_private=true&hide_border=true&bg_color=0d1117"/>
-&nbsp;
-<img height="180em" src="https://github-readme-stats.vercel.app/api/top-langs/?username=Scryne&layout=compact&langs_count=8&theme=tokyonight&hide_border=true&bg_color=0d1117"/>
+![Scryne's GitHub Stats](https://github-readme-stats.vercel.app/api?username=Scryne&show_icons=true&theme=tokyonight&include_all_commits=true&count_private=true&hide_border=true)
 
-</div>
+![Top Languages](https://github-readme-stats.vercel.app/api/top-langs/?username=Scryne&layout=compact&langs_count=8&theme=tokyonight&hide_border=true)
 
-<div align="center">
-
-<img src="https://streak-stats.demolab.com?user=Scryne&theme=tokyonight&hide_border=true&background=0d1117&fire=6E56CF&ring=6E56CF&currStreakLabel=6E56CF"/>
+![GitHub Streak](https://streak-stats.demolab.com?user=Scryne&theme=tokyonight&hide_border=true&fire=6E56CF&ring=6E56CF&currStreakLabel=6E56CF)
 
 </div>
 

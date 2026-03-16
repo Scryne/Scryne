@@ -52,14 +52,6 @@ Portföyüm, farklı alanlardaki yeteneklerimi sergiliyor: film ve dizi takip uy
   <img src="https://img.shields.io/badge/MapLibre-5HTkCdwgd3mMwwO4Oq1c7Z0yKO6QZy8pKHB5o5jM8Lg=?style=flat-square&logo=maplibre&logoColor=white" alt="MapLibre"/>
 </div>
 
-### AI & Araçlar
-<div align="left">
-  <img src="https://img.shields.io/badge/Ollama-FF6C37?style=flat-square&logo=ollama&logoColor=white" alt="Ollama"/>
-  <img src="https://img.shields.io/badge/Gemini-8E75F2?style=flat-square&logo=google&logoColor=white" alt="Gemini"/>
-  <img src="https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite"/>
-  <img src="https://img.shields.io/badge/PWA-5A0FC8?style=flat-square&logo=pwa&logoColor=white" alt="PWA"/>
-  <img src="https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white" alt="Git"/>
-</div>
 
 ---
 

@@ -51,4 +51,4 @@ Mitolojileri, tanrıları ve kutsal mekanları medeniyetler arasında haritaland
 
 ## İletişim
 
-[GitHub](https://github.com/Scryne) · [LinkedIn](https://linkedin.com/in/scryne) · scryne@email.com
+[GitHub](https://github.com/Scryne) · [LinkedIn](https://www.linkedin.com/in/berkay-karaca-3619a8419/) · 2516013036@ogr.dbu.edu.tr

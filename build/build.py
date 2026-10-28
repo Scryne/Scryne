@@ -139,12 +139,19 @@ def text_on_circle(font: Font, s: str, size: float, cx: float, cy: float, r: flo
 
 def themes() -> list[dict]:
     meta = yaml.safe_load((ROOT / "DESIGN.md").read_text(encoding="utf-8").split("---")[1])
-    c = meta["colors"]
-    dark = dict(name="dark", bg=c["scope"], edge=c["scope-edge"], grid=c["scope-grid"], grid2=c["scope-grid-strong"],
-                ink=c["scope-ink"], ink2=c["scope-ink-2"], ink3=c["scope-ink-3"], accent=c["phosphor"], glow=True)
-    light = dict(name="light", bg=c["paper"], edge=c["paper-edge"], grid=c["paper-grid"], grid2=c["paper-grid-strong"],
-                 ink=c["ink"], ink2=c["ink-2"], ink3=c["ink-3"], accent=c["pen"], glow=False)
-    return [dark, light]
+    c, g = meta["colors"], meta["glass"]
+    out = []
+    for name, pre in [("dark", ""), ("light", "light-")]:
+        k = lambda key: c[pre + key]  # noqa: E731
+        dials = dict(g[name])
+        # Objects drawn on the glass (receipt, pages, tiles) are tinted glass too, not opaque blocks.
+        rgb = ",".join(str(int(k("surface")[i:i + 2], 16)) for i in (1, 3, 5))
+        bg = f"rgba({rgb},{dials.pop('surface')})"
+        out.append(dict(name=name, base=k("base"), bg=bg, edge=k("edge"), grid2=k("rivet"),
+                        blobs=[k("blob-1"), k("blob-2"), k("blob-3")], ink=k("ink"), ink2=k("ink-2"),
+                        ink3=k("ink-3"), accent=k("accent"), metal=(k("metal-hi"), k("metal-lo")),
+                        glow=name == "dark", **dials))
+    return out
 
 
 REDUCED = "@media (prefers-reduced-motion: reduce){*{animation:none!important}.motion{display:none}}"
@@ -158,22 +165,50 @@ def svg(w: int, h: int, title: str, desc: str, body: str, style: str = "") -> st
             f"<style>{style}{REDUCED}</style><defs>{defs}</defs>{body}</svg>\n")
 
 
-def frame(t: dict, w: int, h: int, cell: int = 24, grid_top: int = 0) -> str:
-    """Rounded panel with a measuring grid; the grid can start below a header strip."""
+# Mesh layouts as fractions of the panel: (cx, cy, rx, ry, blob). Light falls from the top left in all of them.
+MESHES = [
+    [(.12, .05, .55, .7, 0), (.85, .45, .45, .6, 1), (.35, 1.05, .6, .45, 2)],
+    [(.05, .2, .5, .8, 0), (.7, .0, .5, .5, 1), (.9, 1.0, .5, .6, 2)],
+    [(.25, -.05, .6, .55, 0), (1.0, .7, .45, .7, 1), (.0, .95, .5, .5, 2)],
+    [(.0, .0, .45, .9, 0), (.55, .9, .6, .45, 1), (1.0, .2, .4, .6, 2)],
+]
+
+
+def frame(t: dict, w: int, h: int, mesh: int = 0) -> str:
+    """A glass panel: blurred silver mesh behind, a frosted sheen on top, a rim that catches light at the top left."""
     box = f'x=".5" y=".5" width="{w - 1}" height="{h - 1}" rx="18"'
+    hi, lo = t["metal"]
+    blobs = "".join(f'<ellipse cx="{num(cx * w)}" cy="{num(cy * h)}" rx="{num(rx * w)}" ry="{num(ry * h)}" '
+                    f'fill="{t["blobs"][i]}" fill-opacity="{t["mesh"][i]}"/>' for cx, cy, rx, ry, i in MESHES[mesh % 4])
     return (f'<defs><clipPath id="clip"><rect {box}/></clipPath>'
-            f'<pattern id="grid" width="{cell}" height="{cell}" patternUnits="userSpaceOnUse" y="{grid_top}">'
-            f'<path d="M{cell - .5} 0V{cell - .5}H0" fill="none" stroke="{t["grid"]}"/></pattern></defs>'
-            f'<rect {box} fill="{t["bg"]}"/>'
-            f'<rect clip-path="url(#clip)" x="0" y="{grid_top}" width="{w}" height="{h - grid_top}" fill="url(#grid)"/>'
-            f'<rect {box} fill="none" stroke="{t["edge"]}"/>')
+            f'<filter id="soft" x="-50%" y="-50%" width="200%" height="200%">'
+            f'<feGaussianBlur stdDeviation="{num(min(w, h) * .16)}"/></filter>'
+            f'<linearGradient id="sheen" x1="0" y1="0" x2="1" y2="1">'
+            f'<stop offset="0" stop-color="#fff" stop-opacity="{t["sheen"][0]}"/>'
+            f'<stop offset="1" stop-color="#fff" stop-opacity="{t["sheen"][1]}"/></linearGradient>'
+            f'<linearGradient id="rim" x1="0" y1="0" x2=".6" y2="1">'
+            f'<stop offset="0" stop-color="#fff" stop-opacity="{t["rim"][0]}"/>'
+            f'<stop offset="1" stop-color="#fff" stop-opacity="{t["rim"][1]}"/></linearGradient>'
+            f'<linearGradient id="metal" x1="0" y1="0" x2="0" y2="1">'
+            f'<stop offset="0" stop-color="{hi}"/><stop offset="1" stop-color="{lo}"/></linearGradient></defs>'
+            f'<rect {box} fill="{t["base"]}"/>'
+            f'<g clip-path="url(#clip)"><g filter="url(#soft)">{blobs}</g></g>'
+            f'<rect {box} fill="url(#sheen)"/>'
+            f'<rect {box} fill="none" stroke="{t["edge"]}"/>'
+            f'<rect x="1.5" y="1.5" width="{w - 3}" height="{h - 3}" rx="17" fill="none" stroke="url(#rim)"/>')
+
+
+def glass(t: dict, x: float, y: float, w: float, h: float, rx: float = 10) -> str:
+    """A smaller pane of the same glass, for readout boxes and chips."""
+    return (f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{rx}" fill="#fff" fill-opacity="{t["pane"]}" '
+            f'stroke="url(#rim)"/>')
 
 
 def glow_filter(t: dict) -> str:
     if not t["glow"]:
         return ""
     return ('<filter id="glow" x="-10%" y="-50%" width="120%" height="200%">'
-            '<feGaussianBlur stdDeviation="4"/></filter>')
+            '<feGaussianBlur stdDeviation="5"/></filter>')
 
 
 # --- data -----------------------------------------------------------------------------------------------------------
@@ -240,14 +275,16 @@ def hero(t: dict, days: list[tuple[str, int]], fetched: str) -> str:
              "@keyframes draw{from{stroke-dashoffset:1}}"
              ".fade{animation:fade 1.2s ease 2s backwards}@keyframes fade{from{opacity:0}}"
              ".blink{animation:blink 1.8s steps(1) infinite}@keyframes blink{50%{opacity:.15}}")
-    b = [frame(t, W, H, 24, 56)]
+    b = [frame(t, W, H, 0)]
     b.append(f'<defs>{glow_filter(t)}<linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">'
-             f'<stop offset="0" stop-color="{a}" stop-opacity="{.26 if t["glow"] else .16}"/>'
-             f'<stop offset="1" stop-color="{a}" stop-opacity="0"/></linearGradient></defs>')
+             f'<stop offset="0" stop-color="{a}" stop-opacity="{.2 if t["glow"] else .22}"/>'
+             f'<stop offset="1" stop-color="{a}" stop-opacity="0"/></linearGradient>'
+             f'<linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">'
+             f'<stop offset="0" stop-color="{ink3}"/><stop offset=".55" stop-color="{a}"/>'
+             f'<stop offset="1" stop-color="{t["metal"][0]}"/></linearGradient></defs>')
 
     # header strip
-    b.append(f'<rect x="1" y="1" width="{W - 2}" height="55" rx="17" fill="{t["bg"]}"/>'
-             f'<path d="M1 56H{W - 1}" stroke="{t["edge"]}"/>')
+    b.append(f'<path d="M1 56H{W - 1}" stroke="url(#rim)"/>')
     b.append(f'<circle class="blink" cx="38" cy="28" r="5" fill="{a}"/>')
     b.append(label("live", 52, 33, a, bold=True))
     b.append(label("ch1 · contributions per day", 112, 33, ink2))
@@ -260,14 +297,13 @@ def hero(t: dict, days: list[tuple[str, int]], fetched: str) -> str:
     # measurement box, as on a scope's side panel
     bx, by, bw, rh = 880, 84, 280, 50
     rows = [("total · 1 yr", f"{total:,}"), ("last 30 days", f"{last30:,}"), ("best day", f"{best[1]:,}")]
-    b.append(f'<rect x="{bx}" y="{by}" width="{bw}" height="{rh * len(rows)}" rx="8" fill="{t["bg"]}" '
-             f'stroke="{t["edge"]}"/>')
+    b.append(glass(t, bx, by, bw, rh * len(rows), 12))
     for i, (k, v) in enumerate(rows):
         y = by + rh * i
         if i:
-            b.append(f'<path d="M{bx} {y}H{bx + bw}" stroke="{t["edge"]}"/>')
+            b.append(f'<path d="M{bx + 12} {y}H{bx + bw - 12}" stroke="{ink3}" stroke-opacity=".3"/>')
         b.append(label(k, bx + 18, y + 30, ink3, 12))
-        b.append(text(MONO_B, v, 24, bx + bw - 18, y + 34, a, anchor="end"))
+        b.append(text(MONO_B, v, 24, bx + bw - 18, y + 34, "url(#metal)", anchor="end"))
 
     # time axis: a tick per week, a longer tick and a label per month
     ticks, labels = [], []
@@ -279,21 +315,23 @@ def hero(t: dict, days: list[tuple[str, int]], fetched: str) -> str:
             labels.append(label(day.strftime("%b"), x + 5, BASE + 26, ink3, 12))
         elif day.weekday() == 0:
             ticks.append(f"M{num(x)} {BASE}v4")
+    guides = "".join(f"M{X0} {BASE - AMP * f}H{X1}" for f in (.25, .5, .75, 1))
+    b.append(f'<path d="{guides}" stroke="{ink3}" stroke-opacity=".18" stroke-dasharray="2 6"/>')
     b.append(f'<path d="M{X0} {BASE}H{X1}{"".join(ticks)}" stroke="{ink3}" fill="none"/>')
     b.extend(labels)
 
     # the trace
     b.append(f'<path class="fade" d="{area}" fill="url(#fill)"/>')
     if t["glow"]:
-        b.append(f'<path class="draw" pathLength="1" d="{line}" fill="none" stroke="{a}" stroke-width="5" '
-                 f'stroke-opacity=".45" filter="url(#glow)"/>')
-    b.append(f'<path class="draw" pathLength="1" d="{line}" fill="none" stroke="{a}" stroke-width="2.2" '
+        b.append(f'<path class="draw" pathLength="1" d="{line}" fill="none" stroke="{a}" stroke-width="6" '
+                 f'stroke-opacity=".35" filter="url(#glow)"/>')
+    b.append(f'<path class="draw" pathLength="1" d="{line}" fill="none" stroke="url(#beam)" stroke-width="2.2" '
              f'stroke-linejoin="round" stroke-linecap="round"/>')
     b.append(f'<g class="motion" opacity="0"><set attributeName="opacity" to="1" begin="2.9s"/>'
              f'<circle r="11" fill="{a}" opacity=".18"/><circle r="4.5" fill="{a}"/>'
              f'<animateMotion dur="8s" begin="2.9s" repeatCount="indefinite" path="{line}"/></g>')
 
-    desc = (f"An oscilloscope-style panel. The trace is {USER}'s contributions per day over the last "
+    desc = (f"A glass oscilloscope-style panel. The trace is {USER}'s contributions per day over the last "
             f"{WINDOW_DAYS // 7} weeks: {total:,} in the past year, {last30:,} in the last 30 days, best day "
             f"{best[1]:,} on {best[0]}.")
     return svg(W, H, "Scryne: AI-assisted software, measured before it is trusted.", desc, "".join(b), style)
@@ -325,7 +363,10 @@ def g_citefield(t: dict) -> str:
          f'<path class="draw" pathLength="1" d="M178 81.5H226V96H262" fill="none" stroke="{a}" stroke-width="1.4" '
          f'stroke-dasharray="4 3" style="animation-delay:1.1s"/>']
     for y, k, v, ok in [(150, "total", "41.90", True), (70, "line 2", "12.50", False)]:
-        o.append(f'<rect x="262" y="{y}" width="196" height="54" rx="8" fill="{bg}" stroke="{a if ok else ink3}"/>')
+        o.append(glass(t, 262, y, 196, 54, 8))
+        if ok:
+            o.append(f'<rect x="262" y="{y}" width="196" height="54" rx="8" fill="none" stroke="{a}" '
+                     f'stroke-opacity=".7"/>')
         o.append(label(k, 278, y + 21, ink3, 11))
         o.append(text(MONO_B, v, 21, 278, y + 43, ink))
         if ok:
@@ -516,7 +557,7 @@ def arrow(t: dict, x: float, y: float) -> str:
 def card(t: dict, c: dict) -> str:
     W, H = 600, 340
     ink, ink2, ink3, a = t["ink"], t["ink2"], t["ink3"], t["accent"]
-    b = [frame(t, W, H), arrow(t, W - 48, 34), label(c["kicker"], 34, 50, ink3)]
+    b = [frame(t, W, H, c["mesh"]), arrow(t, W - 48, 34), label(c["kicker"], 34, 50, ink3)]
     size = 60 if SERIF.width(c["title"], 60) < 330 else 330 / SERIF.width(c["title"], 1)
     b.append(text(SERIF, c["title"], size, 32, 128, ink, -0.01))
     for i, line in enumerate(c["desc"]):
@@ -524,7 +565,7 @@ def card(t: dict, c: dict) -> str:
     b.append(f'<g transform="translate(392 70)">{c["glyph"](t)}</g>')
     b.append(f'<path d="M34 256H{W - 34}" stroke="{ink3}" stroke-opacity=".5" stroke-dasharray="2 4"/>')
     value, lines = c["readout"]
-    b.append(text(MONO_B, value, 34, 34, 308, a))
+    b.append(text(MONO_B, value, 34, 34, 308, "url(#metal)"))
     lx = 34 + MONO_B.width(value, 34) + 20
     for i, line in enumerate(lines):
         b.append(label(line, lx, 293 + 19 * i, ink2, 12))
@@ -534,7 +575,7 @@ def card(t: dict, c: dict) -> str:
 def card_wide(t: dict, c: dict) -> str:
     W, H = 1200, 340
     ink, ink2, ink3, a = t["ink"], t["ink2"], t["ink3"], t["accent"]
-    b = [frame(t, W, H), arrow(t, W - 48, 34), label(c["kicker"], 34, 50, ink3)]
+    b = [frame(t, W, H, c["mesh"]), arrow(t, W - 48, 34), label(c["kicker"], 34, 50, ink3)]
     b.append(text(SERIF, c["title"], 84, 30, 142, ink, -0.01))
     for i, line in enumerate(c["desc"]):
         b.append(text(MONO, line, 17, 34, 186 + 25 * i, ink2))
@@ -542,7 +583,7 @@ def card_wide(t: dict, c: dict) -> str:
     b.append(f'<path d="M34 244H620" stroke="{ink3}" stroke-opacity=".5" stroke-dasharray="2 4"/>')
     for i, (value, line) in enumerate(c["readouts"]):
         x = 34 + i * 200
-        b.append(text(MONO_B, value, 36, x, 292, a))
+        b.append(text(MONO_B, value, 36, x, 292, "url(#metal)"))
         b.append(label(line, x, 316, ink2, 11))
     b.append(label(c["note"], 34, 236, ink3, 10))
     return svg(W, H, c["title"], c["alt"], "".join(b), CARD_STYLE)
@@ -567,8 +608,8 @@ def plate(t: dict) -> str:
     style = (".stamp{transform-box:fill-box;transform-origin:center;"
              "animation:stamp .5s cubic-bezier(.3,1.6,.6,1) .6s backwards}"
              "@keyframes stamp{from{transform:scale(1.5);opacity:0}}")
-    b = [f'<rect x=".5" y=".5" width="{W - 1}" height="{H - 1}" rx="18" fill="{t["bg"]}" stroke="{edge}"/>',
-         f'<rect x="14.5" y="14.5" width="{W - 29}" height="{H - 29}" rx="10" fill="none" stroke="{edge}"/>']
+    b = [frame(t, W, H, 1),
+         f'<rect x="14.5" y="14.5" width="{W - 29}" height="{H - 29}" rx="10" fill="none" stroke="url(#rim)"/>']
     for x, y in [(34, 34), (W - 34, 34), (34, H - 34), (W - 34, H - 34)]:
         b.append(f'<circle cx="{x}" cy="{y}" r="7" fill="{t["grid2"]}" stroke="{edge}"/>'
                  f'<path d="M{x - 4} {y + 2}L{x + 4} {y - 2}" stroke="{ink3}" stroke-width="1.4"/>')
@@ -610,6 +651,8 @@ def main() -> None:
         fetch()
     days, fetched = load()
     ASSETS.mkdir(exist_ok=True)
+    for i, c in enumerate(CARDS):
+        c["mesh"] = i
     for t in themes():
         out = {f"hero-{t['name']}.svg": hero(t, days, fetched), f"plate-{t['name']}.svg": plate(t)}
         for c in CARDS:

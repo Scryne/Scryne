@@ -250,7 +250,7 @@ def hero(t: dict, days: list[tuple[str, int]], fetched: str) -> str:
              f'<path d="M1 56H{W - 1}" stroke="{t["edge"]}"/>')
     b.append(f'<circle class="blink" cx="38" cy="28" r="5" fill="{a}"/>')
     b.append(label("live", 52, 33, a, bold=True))
-    b.append(label("ch1 · public contributions per day", 112, 33, ink2))
+    b.append(label("ch1 · contributions per day", 112, 33, ink2))
     b.append(label(f"{WINDOW_DAYS // 7} wk window · updated {fetched}", W - 36, 33, ink3, anchor="end"))
 
     # wordmark and motto
@@ -293,7 +293,7 @@ def hero(t: dict, days: list[tuple[str, int]], fetched: str) -> str:
              f'<circle r="11" fill="{a}" opacity=".18"/><circle r="4.5" fill="{a}"/>'
              f'<animateMotion dur="8s" begin="2.9s" repeatCount="indefinite" path="{line}"/></g>')
 
-    desc = (f"An oscilloscope-style panel. The trace is {USER}'s public contributions per day over the last "
+    desc = (f"An oscilloscope-style panel. The trace is {USER}'s contributions per day over the last "
             f"{WINDOW_DAYS // 7} weeks: {total:,} in the past year, {last30:,} in the last 30 days, best day "
             f"{best[1]:,} on {best[0]}.")
     return svg(W, H, "Scryne: AI-assisted software, measured before it is trusted.", desc, "".join(b), style)

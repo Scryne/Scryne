@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
-  <img alt="Scryne: AI-assisted software, measured before it is trusted. An oscilloscope panel tracing public contributions per day over the last 26 weeks." src="assets/hero-light.svg" width="100%">
+  <img alt="Scryne: AI-assisted software, measured before it is trusted. An oscilloscope panel tracing contributions per day over the last 26 weeks." src="assets/hero-light.svg" width="100%">
 </picture>
 
 <p>

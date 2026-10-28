@@ -1,39 +1,47 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="assets/banner-dark.svg">
-  <img alt="Scryne: AI-assisted software, measured before it is trusted." src="assets/banner-light.svg" width="100%">
+  <source media="(prefers-color-scheme: dark)" srcset="assets/hero-dark.svg">
+  <img alt="Scryne: AI-assisted software, measured before it is trusted. An oscilloscope panel tracing public contributions per day over the last 26 weeks." src="assets/hero-light.svg" width="100%">
 </picture>
 
-I build software with AI as a pair programmer: document AI, OSINT tools, industrial
-platforms, developer tooling. The model writes most of the first draft. What ships is
-decided by tests, benchmarks and end-to-end runs on real data.
+<a href="https://github.com/Scryne/citefield"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/card-citefield-dark.svg">
+  <img alt="Citefield: self-hosted document extraction. 88.7% of values right, 96.3% boxed on the right words, 0.8% errors among auto-approved values." src="assets/card-citefield-light.svg" width="100%">
+</picture></a>
 
-### How I work
+<p>
+<a href="https://github.com/Scryne/TenderIQ"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/card-tenderiq-dark.svg">
+  <img alt="TenderIQ: citation-first analysis of public tender documents; every finding carries document, page and clause." src="assets/card-tenderiq-light.svg" width="49%">
+</picture></a>
+<a href="https://github.com/Scryne/GhostBuilding"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/card-ghostbuilding-dark.svg">
+  <img alt="GhostBuilding: compares three satellite imagery providers; 3 of 20 sensitive sites flagged, 0 of 7 controls." src="assets/card-ghostbuilding-light.svg" width="49%">
+</picture></a>
+</p>
+<p>
+<a href="https://github.com/Scryne/MythAtlas"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/card-mythatlas-dark.svg">
+  <img alt="MythAtlas: an atlas of myths, deities and sacred sites; citations went from 1,826 to 274 after the integrity gate." src="assets/card-mythatlas-light.svg" width="49%">
+</picture></a>
+<a href="https://github.com/Scryne/Wartrack"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/card-wartrack-dark.svg">
+  <img alt="Wartrack: regional monitoring board; 15 news feeds into one explainable threat level." src="assets/card-wartrack-light.svg" width="49%">
+</picture></a>
+</p>
+<p>
+<a href="https://github.com/Scryne/gridgrade"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/card-gridgrade-dark.svg">
+  <img alt="GridGrade: US electricity prices and utility report cards graded A to F, rebuilt daily from EIA data." src="assets/card-gridgrade-light.svg" width="49%">
+</picture></a>
+<a href="https://github.com/Scryne/Kokpit"><picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/card-kokpit-dark.svg">
+  <img alt="Kokpit: desktop cockpit for AI-assisted development; one click from the project board to Claude Code." src="assets/card-kokpit-light.svg" width="49%">
+</picture></a>
+</p>
 
-| Principle | Where it shows |
-|---|---|
-| **Grounded or rejected.** An AI finding that cannot point to its source never reaches the user. | [TenderIQ](https://github.com/Scryne/TenderIQ): every finding carries document, page and clause, and is highlighted on the original PDF. |
-| **Calibrate before you alarm.** Thresholds come from measured baselines, not intuition. | [GhostBuilding](https://github.com/Scryne/GhostBuilding): uncalibrated, 39 of 40 ordinary locations looked "anomalous". Calibrated on 60, a 27-site scan found 3, with 0 in the controls. |
-| **Numbers from code, words from the model.** | [Wartrack](https://github.com/Scryne/Wartrack): the threat level and its reasons are computed; a local LLM only writes the Turkish summary. |
-| **Audit your own green checks.** Passing CI is not the same as a working product. | [MythAtlas](https://github.com/Scryne/MythAtlas): CI was green while the content was fabricated. Citations went from 1,826 to 274, and a new gate flags 5,483 violations in the old data. |
-| **Write decisions down.** Context lives in files, not in a chat window. | ADRs, `DESIGN.md` contracts and per-session status files in every project; [Kokpit](https://github.com/Scryne/Kokpit) is the desk I run it all from. |
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="assets/plate-dark.svg">
+  <img alt="Rating plate. Input: model-written first drafts. Output: what survived tests, benchmarks and real data. Built with Python, TypeScript, FastAPI, Next.js, React, Node, PostgreSQL, pgvector, PostGIS, Redis, Celery, Electron. AI: Claude Code, LangGraph, hybrid retrieval, Ollama, evals. Checked by pytest, Vitest, Playwright, mypy, Ruff, gitleaks, CI. Stamped: measured before it is trusted, pass." src="assets/plate-light.svg" width="100%">
+</picture>
 
-### Selected work
-
-| Project | What it is | Built with |
-|---|---|---|
-| [**TenderIQ**](https://github.com/Scryne/TenderIQ) | Citation-first analysis of Turkish public tender documents. Multi-tenant SaaS with row-level isolation, human-in-the-loop review and a golden-set eval gate. | FastAPI · Celery · PostgreSQL + pgvector · LangGraph · Next.js |
-| [**GhostBuilding**](https://github.com/Scryne/GhostBuilding) | Compares three satellite imagery providers to flag blurred, mosaicked or mismatched locations, with the evidence tiles next to each score. | FastAPI · PostGIS · OpenCV · Next.js · MapLibre |
-| [**Wartrack**](https://github.com/Scryne/Wartrack) | Single-operator monitoring board: 15 feeds mapped to places, scored events and an explainable threat level, summarized by a local model by default. | Node · Express · Socket.IO · SQLite · React · Leaflet · Ollama |
-| [**MythAtlas**](https://github.com/Scryne/MythAtlas) | An open atlas of myths, deities and sacred sites, matched against Wikipedia and Wikidata, with UNESCO status verified per site. | Next.js · MapLibre · D3 · Wikidata SPARQL |
-| [**Kokpit**](https://github.com/Scryne/Kokpit) | Desktop cockpit for AI-assisted development: every project on one board, one click opens Claude Code in an embedded terminal. | Electron · node-pty · xterm.js · React |
-
-Also built, kept private: a compliance due-diligence platform (KYB screening with a hash-chained
-audit trail), a multi-tenant MES/ERP for heavy industry, a political-intelligence desk whose
-evidence engine is forbidden by CI from importing the LLM, and a local-first OSINT workstation.
-
-### Toolbox
-
-**Backend** Python · FastAPI · Celery · Node.js · PostgreSQL · pgvector · PostGIS · Redis · SQLite<br>
-**Frontend** TypeScript · React · Next.js · Tailwind · MapLibre · Leaflet · D3<br>
-**AI** Claude Code · LangGraph · RAG and hybrid retrieval · local models (Ollama) · eval sets<br>
-**Quality** pytest · Vitest · Playwright · mypy · Ruff · GitHub Actions · Lighthouse · gitleaks
+<sub>Every panel is drawn by <a href="https://github.com/Scryne/Scryne/blob/main/build/build.py">build/build.py</a>; the trace is redrawn daily from the public contribution calendar.</sub>
